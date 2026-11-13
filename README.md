@@ -1,6 +1,6 @@
 # Player2.sg Website
 
-Motion-led service website for Player2.sg, built for Cloudflare Pages.
+Player2 gaming website, featuring Fuwa, built for Cloudflare Pages.
 
 ## Local Development
 
@@ -21,16 +21,11 @@ Cloudflare Pages settings:
 - Output directory: `dist`
 - Production branch: `main`
 
-## Content Notes
+## Fuwa
 
-Current service pillars:
+The permanent game route is `/fuwa/`. See [integration notes](docs/fuwa-integration.md)
+for proxy settings and game-host acceptance gates. It returns an explicit offline
+page until the upstream is ready. The homepage uses the game's existing loading
+artwork from dadablinks/fuonline, branch fuwa-2.5, godot-temple/web/loading-hall.jpg.
 
-- Listing Media
-- Video Walkthroughs
-- Reel Explainers
-- AI Augmented Videos
-- Branding Content
-- Website Starter
-
-Portfolio cards are intentionally marked as placeholders until real case studies,
-sample reels, or listing media are supplied.
+Proxy checks: `node --test tests/fuwa-proxy.test.mjs`.
