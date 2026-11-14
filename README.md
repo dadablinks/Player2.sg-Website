@@ -35,7 +35,7 @@ Proxy checks: `node --test tests/fuwa-proxy.test.mjs`.
 
 The homepage uses a Matrix-inspired black and neon-green gaming direction.
 The wordmark is exactly Player2.sg: black Player with a green outline, solid
-green 2 and a green .sg suffix. Animated code rain pauses offscreen and in
+green 2 and a black, green-outlined .sg suffix. Animated code rain pauses offscreen and in
 background tabs; reduced-motion mode draws a static frame. Project filters,
 native project dialogs and reduced-motion support are included, with
 direct links to the verified TikTok profile @player2.sg. No third-party social

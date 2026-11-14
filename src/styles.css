@@ -1506,8 +1506,9 @@ footer {
   text-shadow: 0 0 13px #45ff6a66;
 }
 .matrix-domain {
-  color: #45ff6a;
-  -webkit-text-stroke: 0;
+  color: #000;
+  -webkit-text-stroke: 1px #45ff6a;
+  filter: drop-shadow(0 0 5px #45ff6a55);
 }
 .hero h1 {
   font-size: 143px;
@@ -1530,7 +1531,8 @@ footer {
 }
 .hero h1 .matrix-domain {
   font-size: 0.45em;
-  text-shadow: 0 0 14px #45ff6a40;
+  text-shadow: none;
+  -webkit-text-stroke-width: 1.2px;
 }
 .hero-scene {
   filter: grayscale(1) sepia(0.7) hue-rotate(78deg) saturate(1.6)
