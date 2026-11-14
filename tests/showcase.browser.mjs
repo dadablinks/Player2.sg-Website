@@ -11,6 +11,25 @@ try {
     page.on("pageerror", (e) => errors.push(e.message));
     await page.goto(root, { waitUntil: "networkidle" });
     await page.waitForTimeout(800);
+    assert.equal(await page.locator("h1").textContent(), "Player2.sg");
+    assert.equal(
+      await page
+        .locator("h1 .matrix-player")
+        .evaluate((e) => getComputedStyle(e).color),
+      "rgb(0, 0, 0)",
+    );
+    assert.equal(
+      await page
+        .locator("h1 .matrix-player")
+        .evaluate((e) => getComputedStyle(e).webkitTextStrokeColor),
+      "rgb(69, 255, 106)",
+    );
+    assert.equal(
+      await page
+        .locator("h1 .matrix-two")
+        .evaluate((e) => getComputedStyle(e).color),
+      "rgb(69, 255, 106)",
+    );
     await page.screenshot({ path: `../out/pro-player2-${width}-hero.png` });
     assert.equal(
       await page.locator("video").count(),
@@ -47,7 +66,7 @@ try {
         ),
       true,
     );
-    await page.locator('.filters button').filter({ hasText: 'Play' }).click();
+    await page.locator(".filters button").filter({ hasText: "Play" }).click();
     assert.equal(await page.locator(".project").count(), 1);
     await page
       .getByRole("button", { name: "Explore FUWA", exact: true })
@@ -55,7 +74,7 @@ try {
     assert.equal(await page.locator("dialog").evaluate((d) => d.open), true);
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("dialog").evaluate((d) => d.open), false);
-    await page.locator('.filters button').filter({ hasText: 'All' }).click();
+    await page.locator(".filters button").filter({ hasText: "All" }).click();
     assert.equal(await page.locator(".project").count(), 2);
     if (width <= 700) {
       await page.getByRole("button", { name: "Open menu" }).click();

@@ -53,6 +53,99 @@ const projects = [
   },
 ];
 type Project = (typeof projects)[number];
+function Wordmark() {
+  return (
+    <>
+      <span className="matrix-player">Player</span>
+      <span className="matrix-two">2</span>
+      <span className="matrix-domain">.sg</span>
+    </>
+  );
+}
+function MatrixRain() {
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    const element = canvas.current;
+    if (!element) return;
+    const context = element.getContext("2d");
+    if (!context) return;
+    let width = 0,
+      height = 0,
+      frame = 0,
+      last = 0,
+      visible = true;
+    let drops: number[] = [];
+    const glyphs = "0123456789PLAYER2SG";
+    function resize() {
+      const bounds = element!.getBoundingClientRect();
+      width = bounds.width;
+      height = bounds.height;
+      const ratio = Math.min(devicePixelRatio || 1, 2);
+      element!.width = width * ratio;
+      element!.height = height * ratio;
+      context!.setTransform(ratio, 0, 0, ratio, 0, 0);
+      drops = Array.from(
+        { length: Math.ceil(width / 25) },
+        () => (Math.random() * height) / 21,
+      );
+      context!.clearRect(0, 0, width, height);
+      paint();
+    }
+    function paint() {
+      context!.fillStyle = "rgba(0, 8, 2, .09)";
+      context!.fillRect(0, 0, width, height);
+      context!.font = "13px monospace";
+      drops.forEach((drop, i) => {
+        context!.fillStyle = i % 5 === 0 ? "#b5ffc6" : "#26ae4d";
+        context!.fillText(
+          glyphs[Math.floor(Math.random() * glyphs.length)],
+          i * 25,
+          drop * 21,
+        );
+        drops[i] =
+          drop * 21 > height && Math.random() > 0.97
+            ? -Math.random() * 20
+            : drop + 0.38;
+      });
+    }
+    function tick(time: number) {
+      if (!visible || document.hidden || reduced) {
+        frame = 0;
+        return;
+      }
+      if (time - last > 50) {
+        paint();
+        last = time;
+      }
+      frame = requestAnimationFrame(tick);
+    }
+    function resume() {
+      if (!frame && visible && !document.hidden && !reduced)
+        frame = requestAnimationFrame(tick);
+    }
+    const observer = new ResizeObserver(resize);
+    observer.observe(element);
+    const intersection = new IntersectionObserver((entries) => {
+      visible = entries[0].isIntersecting;
+      if (!visible) {
+        cancelAnimationFrame(frame);
+        frame = 0;
+      } else resume();
+    });
+    intersection.observe(element);
+    document.addEventListener("visibilitychange", resume);
+    resize();
+    resume();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      intersection.disconnect();
+      document.removeEventListener("visibilitychange", resume);
+    };
+  }, [reduced]);
+  return <canvas ref={canvas} className="matrix-rain" aria-hidden="true" />;
+}
 function Reveal({
   children,
   className = "",
@@ -149,13 +242,7 @@ export function App() {
       />
       <header className="header">
         <a className="brand" href="/" aria-label="Player2 home">
-          <span className="brand-symbol">
-            P2
-            <span />
-          </span>
-          <span>
-            PLAYER2<span className="brand-domain">.SG</span>
-          </span>
+          <Wordmark />
         </a>
         <nav className="desktop-nav" aria-label="Main navigation">
           <a href="/#projects">Projects</a>
@@ -264,6 +351,7 @@ export function App() {
               }}
             />
             <div className="hero-shade" />
+            <MatrixRain />
             <div className="hero-scan" aria-hidden="true" />
             <div className="hero-layout">
               <div className="hero-label">
@@ -275,9 +363,8 @@ export function App() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.65 }}
               >
-                <h1>
-                  PLAYER<span>2</span>
-                  <span className="hero-stop">.</span>
+                <h1 aria-label="Player2.sg">
+                  <Wordmark />
                 </h1>
                 <p className="hero-lead">
                   CURIOSITY IS
@@ -330,7 +417,7 @@ export function App() {
                   <i />
                   <span>REPEAT</span>
                   <i />
-                  <span>PLAYER2.SG</span>
+                  <span>Player2.sg</span>
                   <i />
                 </span>
               ))}
@@ -617,11 +704,7 @@ export function App() {
       <footer>
         <div className="footer-main">
           <a className="brand" href="/">
-            <span className="brand-symbol">
-              P2
-              <span />
-            </span>
-            <span>PLAYER2.SG</span>
+            <Wordmark />
           </a>
           <p>
             A passion project.
@@ -642,7 +725,7 @@ export function App() {
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} PLAYER2.SG</span>
+          <span>© {new Date().getFullYear()} Player2.sg</span>
           <span>INDEPENDENT / SINGAPORE</span>
           <a href="/privacy/">Privacy</a>
           <a href="#">Back to top ↑</a>
