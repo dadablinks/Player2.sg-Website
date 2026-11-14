@@ -33,17 +33,17 @@ Proxy checks: `node --test tests/fuwa-proxy.test.mjs`.
 
 ## Showcase
 
-The homepage includes project filters, accessible native project dialogs, local
-video previews, an interactive colour experiment, reduced-motion support and
+The homepage uses a restrained professional gaming direction: charcoal, white,
+red accents, condensed typography, project filters, native project dialogs and
+reduced-motion support, with
 direct links to the verified TikTok profile @player2.sg. No third-party social
 embeds load on the homepage. Contact uses the existing Player2 WhatsApp number.
 
 `node tests/showcase.browser.mjs` checks desktop, phone and narrow-phone layouts,
-project filtering/dialogs, video playback, mobile navigation and reduced motion.
+project filtering/dialogs, absence of video content, and mobile navigation.
 It uses the installed Microsoft Edge browser and expects port 5182; override
 SHOWCASE_URL for an alternate origin.
 
-Assets: Fuwa loading art from fuonline; the local Remotion output supplies the
-muted motion excerpt and poster; Tiny Treasures is captured from its live site.
-The chrome numeral artwork was generated specifically for this showcase.
+Assets: Fuwa loading art from fuonline and a capture of the live Tiny Treasures
+site. Nick's video content and thumbnails must not be used on this website.
 Keep the live FUWA_ORIGIN and FUWA_READY Pages variables intact on redeployment.

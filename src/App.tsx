@@ -8,68 +8,49 @@ import {
 } from "framer-motion";
 import {
   ArrowDown,
-  ArrowDownLeft,
   ArrowRight,
   ArrowUpRight,
   Check,
   Copy,
   Gamepad2,
   Menu,
-  Pause,
-  Play,
-  Shuffle,
-  Sparkles,
   X,
 } from "lucide-react";
 
-const tikTok = "https://www.tiktok.com/@player2.sg";
+const tiktok = "https://www.tiktok.com/@player2.sg";
 const contact =
   "https://wa.me/6581168100?text=Hello%20Player2%2C%20I%20have%20an%20idea%20to%20explore.";
 const projects = [
   {
     id: "fuwa",
     category: "Play",
-    title: "Fuwa",
-    type: "A shared pixel world",
+    title: "FUWA",
+    subtitle: "A shared pixel world",
     image: "/assets/fuwa-hall.jpg",
-    status: "Ongoing",
-    intro: "What if a browser could be a place to slow down?",
-    body: "A small temple, a few familiar faces and a moment away from the noise. Fuwa is my experiment in building a shared world with Godot, AI-assisted development and a lot of iteration.",
-    learned:
-      "The interesting part is making it feel alive: movement, music, shared moments and the little details between them.",
+    tag: "GODOT / MULTIPLAYER",
     url: "/fuwa/",
-    action: "Enter the temple",
-  },
-  {
-    id: "motion",
-    category: "Watch",
-    title: "A little more motion",
-    type: "Video & creative coding",
-    image: "/assets/reel-poster.jpg",
-    status: "Experiment",
-    intro: "Could code give a video its own rhythm?",
-    body: "An exploration of reusable motion graphics for property explainers. A spoken idea becomes a timed visual cue, a comparison or a carefully placed text moment. Built with Remotion and AI-assisted coding.",
-    learned:
-      "Good automation leaves room for judgment. The challenge is knowing what to emphasise, and when to leave the frame alone.",
-    action: "Watch the experiment",
+    action: "Enter Fuwa",
+    description:
+      "A browser-based temple built around exploration and shared moments. An ongoing experiment in game development, multiplayer systems and AI-assisted creation.",
+    lesson:
+      "Building a world means getting the small things right: movement, atmosphere, sound and the feeling of sharing a space.",
   },
   {
     id: "treasures",
     category: "Build",
-    title: "Tiny Treasures",
-    type: "From collection to website",
+    title: "TINY TREASURES",
+    subtitle: "A collection, brought online",
     image: "/assets/tinytreasures.jpg",
-    status: "Live site",
-    intro: "Small objects. A whole world to organise.",
-    body: "A website for Tiny Treasures and its collectors. An ongoing exploration of how AI-assisted development can turn a real collection into a useful, welcoming online experience.",
-    learned:
-      "A real project needs more than a good first screen. The details, content and day-to-day upkeep matter just as much.",
+    tag: "WEB / REAL-WORLD PROJECT",
     url: "https://tinytreasures.sg",
-    action: "Visit Tiny Treasures",
+    action: "Visit the website",
+    description:
+      "An online home for Tiny Treasures and its collectors. An exploration of how AI-assisted development can turn a real collection into a useful digital experience.",
+    lesson:
+      "The test is whether something works beyond its first impression. Content, clarity and everyday usefulness matter.",
   },
 ];
 type Project = (typeof projects)[number];
-
 function Reveal({
   children,
   className = "",
@@ -81,64 +62,53 @@ function Reveal({
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: reduced ? 0 : 30 }}
+      initial={{ opacity: 0, y: reduced ? 0 : 22 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.08 }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.6 }}
     >
       {children}
     </motion.div>
   );
 }
-
 export function App() {
   const [menu, setMenu] = useState(false);
   const [filter, setFilter] = useState("All");
   const [selected, setSelected] = useState<Project | null>(null);
+  const [online, setOnline] = useState<boolean | null>(null);
   const [copied, setCopied] = useState(false);
-  const [health, setHealth] = useState("Checking the temple");
-  const [videoPlaying, setVideoPlaying] = useState(false);
-  const video = useRef<HTMLVideoElement>(null);
   const dialog = useRef<HTMLDialogElement>(null);
-  const lastFocus = useRef<HTMLElement | null>(null);
+  const previousFocus = useRef<HTMLElement | null>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll();
-  const heroY = useTransform(
+  const sceneY = useTransform(
     scrollYProgress,
-    [0, 0.24],
-    [0, reduced ? 0 : 130],
+    [0, 0.3],
+    [0, reduced ? 0 : 110],
   );
-  const heroRotate = useTransform(
-    scrollYProgress,
-    [0, 0.24],
-    [0, reduced ? 0 : -3],
-  );
-  const privacy = window.location.pathname === "/privacy/";
-
+  const privacy = window.location.pathname.startsWith("/privacy");
   useEffect(() => {
     const controller = new AbortController();
     fetch("/fuwa/health", {
-      signal: AbortSignal.any([controller.signal, AbortSignal.timeout(7000)]),
       cache: "no-store",
+      signal: AbortSignal.any([controller.signal, AbortSignal.timeout(7000)]),
     })
       .then(async (r) => {
         const d = await r.json();
-        setHealth(
-          r.ok && d.status === "ok" ? "Temple is online" : "Temple is resting",
-        );
+        setOnline(r.ok && d.status === "ok");
       })
-      .catch(() => setHealth("Temple is resting"));
+      .catch(() => setOnline(false));
     return () => controller.abort();
   }, []);
   useEffect(() => {
     if (selected) {
-      lastFocus.current = document.activeElement as HTMLElement;
+      previousFocus.current = document.activeElement as HTMLElement;
       dialog.current?.showModal();
       document.body.style.overflow = "hidden";
     } else {
       dialog.current?.close();
       document.body.style.overflow = "";
-      lastFocus.current?.focus();
+      previousFocus.current?.focus();
     }
     return () => {
       document.body.style.overflow = "";
@@ -146,23 +116,27 @@ export function App() {
   }, [selected]);
   useEffect(() => {
     if (!menu) return;
-    const close = (e: KeyboardEvent) => {
+    const handler = (e: KeyboardEvent) => {
       if (e.key === "Escape") setMenu(false);
     };
-    window.addEventListener("keydown", close);
-    return () => window.removeEventListener("keydown", close);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
   }, [menu]);
-
-  async function copyLink() {
+  async function copy() {
     try {
       await navigator.clipboard.writeText("https://player2.sg");
       setCopied(true);
-      setTimeout(() => setCopied(false), 2200);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
       window.prompt("Player2 link", "https://player2.sg");
     }
   }
-
+  const status =
+    online === null
+      ? "CHECKING SERVER"
+      : online
+        ? "SERVER ONLINE"
+        : "SERVER OFFLINE";
   return (
     <>
       <motion.div
@@ -170,24 +144,27 @@ export function App() {
         style={{ scaleX: scrollYProgress }}
       />
       <header className="header">
-        <a href="/" className="wordmark" aria-label="Player2 home">
-          player2<span className="logo-spark">✳</span>
-        </a>
-        <nav className="desktop-nav" aria-label="Main navigation">
-          <a href="/#experiments">The experiments</a>
-          <a href="/#about">The person</a>
-          <a href={tikTok} target="_blank" rel="noreferrer">
-            The TikToks <ArrowUpRight size={14} />
-          </a>
-        </nav>
-        <a className="header-contact" href="/#contact">
-          Have a little idea?{" "}
+        <a className="brand" href="/" aria-label="Player2 home">
+          <span className="brand-symbol">
+            P2
+            <span />
+          </span>
           <span>
-            <ArrowUpRight size={18} />
+            PLAYER2<span className="brand-domain">.SG</span>
           </span>
         </a>
+        <nav className="desktop-nav" aria-label="Main navigation">
+          <a href="/#projects">Projects</a>
+          <a href="/#approach">The approach</a>
+          <a href={tiktok} target="_blank" rel="noreferrer">
+            TikTok <ArrowUpRight size={13} />
+          </a>
+        </nav>
+        <a className="header-play" href="/fuwa/">
+          PLAY FUWA <ArrowUpRight size={16} />
+        </a>
         <button
-          className="menu-toggle icon-button"
+          className="icon-button menu-button"
           aria-label={menu ? "Close menu" : "Open menu"}
           aria-expanded={menu}
           aria-controls="mobile-navigation"
@@ -202,206 +179,159 @@ export function App() {
             id="mobile-navigation"
             className="mobile-nav"
             aria-label="Mobile navigation"
-            initial={{ opacity: 0, y: -15 }}
+            initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
+            exit={{ opacity: 0, y: -8 }}
           >
-            <a href="/#experiments" onClick={() => setMenu(false)}>
-              The experiments <ArrowUpRight />
-            </a>
-            <a href="/#about" onClick={() => setMenu(false)}>
-              The person <ArrowUpRight />
-            </a>
-            <a href={tikTok} target="_blank" rel="noreferrer">
-              The TikToks <ArrowUpRight />
-            </a>
-            <a href="/#contact" onClick={() => setMenu(false)}>
-              Say hello <ArrowUpRight />
-            </a>
+            {[
+              ["Projects", "/#projects"],
+              ["The approach", "/#approach"],
+              ["About", "/#about"],
+              ["TikTok", tiktok],
+            ].map(([label, href]) => (
+              <a key={label} href={href} onClick={() => setMenu(false)}>
+                {label}
+                <ArrowUpRight size={20} />
+              </a>
+            ))}
           </motion.nav>
         )}
       </AnimatePresence>
       {privacy ? (
         <main className="privacy">
-          <p className="eyebrow">THE SMALL PRINT</p>
-          <h1>A little privacy.</h1>
+          <span className="eyebrow">PLAYER2 / PRIVACY</span>
+          <h1>THE SMALL PRINT.</h1>
           <p>
-            This is a personal showcase. The homepage does not use advertising
-            trackers or load TikTok embeds. Videos here are hosted with the
-            site. Visiting an external link takes you to that service and its
-            privacy policy.
+            This personal showcase does not use advertising trackers or load
+            social media embeds. External links take you to the named service
+            and its privacy policy.
           </p>
           <p>
-            Cloudflare hosts and delivers the website and may process technical
-            request information for security and delivery. Fuwa is a separate
-            multiplayer experience; visitor names, room activity and offering
-            state are handled by its game server. Contact messages sent through
-            WhatsApp are handled by WhatsApp.
+            Cloudflare delivers and protects the website and may process
+            technical request information. Fuwa is a separate multiplayer
+            experience; visitor names, rooms and offering state are handled by
+            its game server. WhatsApp handles messages sent through the contact
+            link.
           </p>
           <p>
-            Questions about the site or your information?{" "}
-            <a href={contact}>Get in touch.</a>
+            Questions about your information?{" "}
+            <a href={contact}>Contact Player2.</a>
           </p>
-          <a className="line-link" href="/">
-            Back to the experiments <ArrowRight />
+          <a className="button" href="/">
+            Back to Player2 <ArrowRight size={17} />
           </a>
         </main>
       ) : (
         <main>
-          <section className="hero" aria-labelledby="hero-title">
-            <div className="hero-visual">
-              <motion.img
-                src="/assets/playground.webp"
-                alt="A sculptural chrome number two, game controller and colourful objects in a red experimental studio"
-                style={{ y: heroY, rotate: heroRotate }}
-                fetchPriority="high"
-              />
-              <div className="hero-veil" />
-            </div>
-            <div className="hero-topline">
-              <span className="eyebrow">
-                <span className="signal" /> AN INDEPENDENT AI PLAYGROUND
-              </span>
-              <span className="edition">SINGAPORE / ALWAYS IN PROGRESS</span>
-            </div>
-            <div className="hero-content">
-              <motion.h1
-                id="hero-title"
-                initial={{ opacity: 0, y: reduced ? 0 : 45 }}
+          <section className="hero">
+            <motion.img
+              className="hero-scene"
+              src="/assets/fuwa-hall.jpg"
+              alt="Fuwa's temple hall, a multiplayer world built with Godot"
+              fetchPriority="high"
+              style={{ y: sceneY }}
+            />
+            <div className="hero-shade" />
+            <div className="hero-layout">
+              <div className="hero-label">
+                <span className="red-rule" /> INDEPENDENT MIND. OPEN
+                POSSIBILITIES.
+              </div>
+              <motion.div
+                initial={{ opacity: 0, y: reduced ? 0 : 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.85 }}
+                transition={{ duration: 0.65 }}
               >
-                Player2<span className="hero-period">.</span>
-              </motion.h1>
-              <div className="hero-bottom">
-                <div>
-                  <p className="hero-tagline">
-                    A little curiosity.
-                    <br />A lot of experimenting with AI.
-                  </p>
-                  <a className="round-link" href="#experiments">
-                    <span className="round-arrow">
-                      <ArrowDown size={22} />
-                    </span>
-                    Come have a look
+                <h1>
+                  PLAYER<span>2</span>
+                  <span className="hero-stop">.</span>
+                </h1>
+                <p className="hero-lead">
+                  CURIOSITY IS
+                  <br />
+                  THE STARTING POINT.
+                </p>
+                <p className="hero-description">
+                  A personal collection of AI experiments.
+                  <br />
+                  Games, digital worlds and ideas put to the test.
+                </p>
+                <div className="hero-actions">
+                  <a className="button primary" href="#projects">
+                    EXPLORE THE PROJECTS <ArrowDown size={17} />
+                  </a>
+                  <a className="hero-secondary" href="/fuwa/">
+                    Enter Fuwa <ArrowUpRight size={17} />
                   </a>
                 </div>
-                <p className="hero-aside">
-                  Things I make.
-                  <br />
-                  Ideas I chase.
-                  <br />
-                  Occasionally, a happy accident.
-                </p>
-              </div>
-            </div>
-            <span className="hero-index">
-              EXPERIMENT NO. 000 / STAY CURIOUS
-            </span>
-          </section>
-          <section className="intro section-pad">
-            <Reveal className="intro-grid">
-              <p className="eyebrow">
-                <span className="mini-cross">+</span> NO BIG MASTER PLAN
-              </p>
-              <div>
-                <h2>
-                  Mostly curiosity.
-                  <br />
-                  Sometimes, <span className="serif">something useful.</span>
-                </h2>
-                <div className="intro-lower">
-                  <ArrowDownLeft size={44} strokeWidth={1} />
-                  <p>
-                    Player2 is where I share what I’ve been making, learning and
-                    occasionally getting carried away with. A game one day. A
-                    video the next. A tool that probably started with “what if?”
-                  </p>
-                </div>
-              </div>
-            </Reveal>
-          </section>
-          <section
-            className="featured section-pad"
-            aria-labelledby="fuwa-heading"
-          >
-            <div className="section-label">
-              <span className="eyebrow">01 / CURRENT RABBIT HOLE</span>
-              <span className="small-type">A WORLD WORTH WANDERING INTO</span>
-            </div>
-            <Reveal className="fuwa-stage">
-              <img
-                src="/assets/fuwa-hall.jpg"
-                alt="The lantern-lit hall inside Fuwa's pixel temple"
-                loading="lazy"
-              />
-              <div className="fuwa-overlay" />
-              <div className="fuwa-top">
-                <span className="stamp">PLAYABLE EXPERIMENT</span>
-                <span className="live-status">
-                  <span
-                    className={
-                      health === "Temple is online" ? "signal" : "signal muted"
-                    }
-                  />
-                  {health}
+              </motion.div>
+              <div className="hero-feature">
+                <span className="eyebrow">FEATURED WORLD / 001</span>
+                <span className="hero-feature-name">FUWA</span>
+                <span className="hero-feature-caption">
+                  A shared pixel world.
                 </span>
               </div>
-              <div className="fuwa-caption">
-                <div>
-                  <span className="eyebrow">A SMALL PLACE TO SLOW DOWN</span>
-                  <h2 id="fuwa-heading">
-                    Fuwa<span>福</span>
-                  </h2>
-                  <p>
-                    A pixel temple. A shared moment.
-                    <br />
-                    And a slightly ambitious side project.
-                  </p>
-                </div>
-                <a className="fuwa-enter" href="/fuwa/" aria-label="Enter Fuwa">
-                  <ArrowUpRight size={38} strokeWidth={1.4} />
-                  <span>Step inside</span>
+            </div>
+            <div className="hero-bottom">
+              <span className="status">
+                <span
+                  className={online ? "status-light live" : "status-light"}
+                />{" "}
+                FUWA / {status}
+              </span>
+              <span>BUILT IN SINGAPORE</span>
+              <a href="#projects">
+                SCROLL TO EXPLORE <ArrowDown size={12} />
+              </a>
+            </div>
+          </section>
+          <section className="intro section-pad">
+            <Reveal className="intro-layout">
+              <span className="eyebrow section-index">01 / THE MINDSET</span>
+              <h2>
+                EXPERIMENT.
+                <br />
+                BUILD. <span className="muted-text">GO FURTHER.</span>
+              </h2>
+              <div className="intro-copy">
+                <p>
+                  I love experimenting with AI and seeing where an idea can go.
+                </p>
+                <p>
+                  Player2 is where I share what I’ve been making, learning and
+                  working out along the way. Some projects are useful. Others
+                  start with a simple “what if?”
+                </p>
+                <a className="text-link" href="#about">
+                  Behind Player2 <ArrowUpRight size={15} />
                 </a>
               </div>
             </Reveal>
-            <div className="feature-foot">
-              <span>
-                <Gamepad2 size={16} /> Godot · Shared world · Browser
-              </span>
-              <button
-                className="bare-link"
-                onClick={() => setSelected(projects[0])}
-              >
-                The story behind it <ArrowUpRight size={16} />
-              </button>
-            </div>
           </section>
-          <section className="projects section-pad" id="experiments">
-            <div className="section-label">
-              <span className="eyebrow">
-                02 / OUT OF MY HEAD, INTO THE WORLD
-              </span>
-              <span className="small-type">SELECTED EXPERIMENTS</span>
-            </div>
-            <div className="projects-heading">
-              <h2>
-                A few things
-                <br />I got <span className="serif">carried away with.</span>
-              </h2>
+          <section className="projects section-pad" id="projects">
+            <div className="section-top">
+              <div>
+                <span className="eyebrow section-index">
+                  02 / SELECTED WORK
+                </span>
+                <h2>
+                  THE PROJECTS<span className="red-text">.</span>
+                </h2>
+              </div>
               <div
                 className="filters"
                 role="group"
                 aria-label="Filter projects"
               >
-                {["All", "Play", "Watch", "Build"].map((f) => (
+                {["All", "Play", "Build"].map((f) => (
                   <button
                     key={f}
-                    onClick={() => setFilter(f)}
                     aria-pressed={filter === f}
+                    onClick={() => setFilter(f)}
                   >
                     {f}
-                    {filter === f && <span className="filter-dot" />}
+                    <span>{f === "All" ? "02" : "01"}</span>
                   </button>
                 ))}
               </div>
@@ -413,251 +343,269 @@ export function App() {
                   <Reveal key={p.id} className={`project project-${p.id}`}>
                     <button
                       className="project-image"
-                      onClick={() => setSelected(p)}
                       aria-label={`Explore ${p.title}`}
+                      onClick={() => setSelected(p)}
                     >
-                      <img src={p.image} alt={p.type} loading="lazy" />
-                      <span className="project-tag">
-                        {p.category} / {p.status}
+                      <img src={p.image} alt={p.subtitle} loading="lazy" />
+                      <span className="image-corner">
+                        <ArrowUpRight size={23} />
                       </span>
-                      <span className="project-arrow">
-                        <ArrowUpRight size={25} />
-                      </span>
-                      {p.id === "motion" && (
-                        <span className="play-disc">
-                          <Play size={32} fill="currentColor" />
-                        </span>
-                      )}
+                      <span className="image-category">{p.tag}</span>
                     </button>
-                    <div className="project-caption">
-                      <span className="project-number">
-                        0{projects.indexOf(p) + 1}
-                      </span>
+                    <div className="project-info">
                       <div>
+                        <span className="project-index">
+                          PROJECT / 00{projects.indexOf(p) + 1}
+                        </span>
                         <h3>
                           <button onClick={() => setSelected(p)}>
                             {p.title}
                           </button>
                         </h3>
-                        <p>{p.type}</p>
+                        <p>{p.subtitle}</p>
                       </div>
-                      <ArrowUpRight size={18} />
+                      <button
+                        className="icon-button"
+                        aria-label={`Read about ${p.title}`}
+                        onClick={() => setSelected(p)}
+                      >
+                        <ArrowUpRight size={23} />
+                      </button>
+                    </div>
+                    <div className="project-footer">
+                      <span>
+                        {p.category === "Play" ? (
+                          <>
+                            <span
+                              className={
+                                online ? "status-light live" : "status-light"
+                              }
+                            />
+                            {status}
+                          </>
+                        ) : (
+                          "LIVE WEBSITE"
+                        )}
+                      </span>
+                      <a
+                        href={p.url}
+                        target={p.url.startsWith("http") ? "_blank" : undefined}
+                        rel="noreferrer"
+                      >
+                        {p.action}
+                        <ArrowUpRight size={14} />
+                      </a>
                     </div>
                   </Reveal>
                 ))}
             </div>
           </section>
-          <section className="play-section section-pad" id="playground">
-            <div className="section-label">
-              <span className="eyebrow">03 / YOUR TURN</span>
-              <span className="small-type">A TINY COLOUR EXPERIMENT</span>
-            </div>
-            <div className="play-heading">
+          <section className="fuwa-feature">
+            <img
+              src="/assets/fuwa-hall.jpg"
+              alt="Explore the hall inside Fuwa"
+              loading="lazy"
+            />
+            <div className="feature-shade" />
+            <div className="feature-content">
+              <span className="eyebrow">A WORLD BEYOND THE HOMEPAGE</span>
               <h2>
-                What if we just
+                STEP INTO
                 <br />
-                <span className="serif">played a little?</span>
+                SOMETHING <span>DIFFERENT.</span>
               </h2>
               <p>
-                No brief. No deliverables.
+                A temple to explore. Other people to meet.
                 <br />
-                Just a small detour.
+                An ongoing experiment in shared experiences.
               </p>
-            </div>
-            <ColourPlayground />
-          </section>
-          <section className="feed section-pad" id="tiktok">
-            <div className="section-label">
-              <span className="eyebrow">04 / THE SMALL-SCREEN CHAPTER</span>
-              <a
-                href={tikTok}
-                target="_blank"
-                rel="noreferrer"
-                className="bare-link"
-              >
-                @player2.sg <ArrowUpRight size={16} />
+              <a className="button primary" href="/fuwa/">
+                <Gamepad2 size={18} /> ENTER FUWA <ArrowUpRight size={18} />
               </a>
             </div>
-            <div className="feed-grid">
-              <Reveal className="feed-copy">
-                <span className="scribble">less polished. more process.</span>
+            <span className="feature-coordinate">
+              PLAYER2 / FUWA / MULTIPLAYER
+            </span>
+          </section>
+          <section className="approach section-pad" id="approach">
+            <div className="section-top">
+              <div>
+                <span className="eyebrow section-index">03 / THE APPROACH</span>
                 <h2>
-                  The experiment
+                  NOT JUST A PROMPT.
                   <br />
-                  doesn’t end
-                  <br />
-                  <span className="serif">at the website.</span>
+                  <span className="muted-text">A PROCESS.</span>
                 </h2>
-                <p>
-                  There’s another side to Player2 on TikTok. Shorter stories,
-                  moving pictures and a little more of the work along the way.
-                </p>
-                <a
-                  className="dark-button"
-                  href={tikTok}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Find me on TikTok <ArrowUpRight size={20} />
-                </a>
-                <span className="feed-note">
-                  COME FOR A LOOK. STAY FOR THE NEXT “WHAT IF?”
-                </span>
-              </Reveal>
-              <Reveal className="video-composition">
-                <span className="video-margin">REAL WORK / A MOTION STUDY</span>
-                <div className="video-frame">
-                  <video
-                    ref={video}
-                    loop
-                    muted
-                    playsInline
-                    preload="none"
-                    poster="/assets/reel-poster.jpg"
-                    onPlay={() => setVideoPlaying(true)}
-                    onPause={() => setVideoPlaying(false)}
-                  >
-                    <source src="/assets/reel-preview.mp4" type="video/mp4" />
-                  </video>
-                  <button
-                    className="video-control"
-                    aria-label={
-                      videoPlaying
-                        ? "Pause motion preview"
-                        : "Play motion preview"
-                    }
-                    onClick={() => {
-                      if (video.current?.paused) void video.current.play();
-                      else video.current?.pause();
-                    }}
-                  >
-                    {videoPlaying ? <Pause size={23} /> : <Play size={23} />}
-                  </button>
-                </div>
-                <div className="video-sticker">
-                  <Sparkles size={22} />
-                  <span>
-                    Made with curiosity.
-                    <br />
-                    And a few iterations.
-                  </span>
-                </div>
-              </Reveal>
+              </div>
+              <p className="section-aside">
+                AI opens the door.
+                <br />
+                The work is in what comes next.
+              </p>
+            </div>
+            <div className="process-list">
+              {[
+                [
+                  "01",
+                  "FOLLOW THE QUESTION",
+                  "Start with something worth exploring. A problem, a possibility or an idea that won’t leave me alone.",
+                ],
+                [
+                  "02",
+                  "BUILD. TEST. REPEAT.",
+                  "Use AI to get moving, then question the output. Try it, break it and refine what matters.",
+                ],
+                [
+                  "03",
+                  "PUT IT INTO THE WORLD",
+                  "A working experiment says more than a perfect plan. Share it, learn from it and keep going.",
+                ],
+              ].map(([n, title, description]) => (
+                <Reveal key={n} className="process-row">
+                  <span>{n}</span>
+                  <h3>{title}</h3>
+                  <p>{description}</p>
+                  <ArrowUpRight size={22} />
+                </Reveal>
+              ))}
             </div>
           </section>
-          <section className="about section-pad" id="about">
-            <div className="section-label">
-              <span className="eyebrow">
-                05 / THE PERSON BEHIND THE PROMPTS
-              </span>
-              <span className="small-type">
-                HUMAN CURIOSITY. AI POSSIBILITIES.
-              </span>
+          <section className="social section-pad" id="tiktok">
+            <div className="social-mark" aria-hidden="true">
+              P2<span>IN PROGRESS</span>
             </div>
-            <Reveal className="about-grid">
-              <div className="about-art" aria-hidden="true">
-                <span className="about-asterisk">✳</span>
-                <span className="about-art-label">
-                  STILL FIGURING
-                  <br />
-                  THINGS OUT.
+            <Reveal className="social-copy">
+              <span className="eyebrow section-index">
+                04 / FOLLOW THE PROCESS
+              </span>
+              <h2>
+                THE NEXT IDEA
+                <br />
+                IS ALREADY <span className="muted-text">IN PLAY.</span>
+              </h2>
+              <p>
+                Experiments, work in progress and another side of Player2.
+                <br />
+                Follow along on TikTok.
+              </p>
+              <a
+                className="button"
+                href={tiktok}
+                target="_blank"
+                rel="noreferrer"
+              >
+                @PLAYER2.SG <ArrowUpRight size={18} />
+              </a>
+            </Reveal>
+            <span className="social-edge">KEEP EXPLORING / KEEP BUILDING</span>
+          </section>
+          <section className="about section-pad" id="about">
+            <Reveal className="about-layout">
+              <div>
+                <span className="eyebrow section-index">
+                  05 / BEHIND PLAYER2
                 </span>
-                <span className="about-coordinate">1 HUMAN / MANY TABS</span>
+                <h2>
+                  ONE PERSON.
+                  <br />
+                  PLENTY OF
+                  <br />
+                  <span className="muted-text">WHAT IFS.</span>
+                </h2>
               </div>
               <div className="about-copy">
-                <h2>
-                  I like seeing
-                  <br />
-                  <span className="serif">where an idea goes.</span>
-                </h2>
-                <p>Especially when I don’t quite know how to build it yet.</p>
-                <p>
-                  AI has made that gap a lot more interesting. I can follow an
-                  idea into a game, a video, a website or a tool, and learn
-                  something along the way.
+                <p className="large-copy">
+                  I’m interested in what happens when curiosity meets the tools
+                  to act on it.
                 </p>
                 <p>
-                  This isn’t a catalogue of perfect answers. It’s a growing
-                  collection of things I’ve tried, things I’ve made and things
-                  I’m still working out.
+                  A game. A website. A different way to solve an everyday
+                  problem. AI makes it possible to follow those ideas further,
+                  and learn by actually building them.
                 </p>
-                <div className="signature">
-                  The person behind Player2 <ArrowDownLeft size={23} />
-                </div>
+                <p>
+                  Player2 is a passion project. An ongoing record of things I’ve
+                  tried, things I’ve made and things I’m still figuring out.
+                </p>
+                <span className="about-signoff">
+                  <span className="red-rule" /> HUMAN CURIOSITY. AI
+                  POSSIBILITIES.
+                </span>
               </div>
             </Reveal>
           </section>
           <section className="contact section-pad" id="contact">
-            <span className="eyebrow">
+            <span className="eyebrow section-index">
               SOME EXPERIMENTS FIND THEIR WAY INTO THE REAL WORLD.
             </span>
-            <Reveal>
-              <h2>
-                Got a little
-                <br />
-                <span className="serif">“what if”?</span>
-                <span className="contact-spark">✳</span>
-              </h2>
-              <div className="contact-bottom">
+            <div className="contact-layout">
+              <div>
+                <h2>
+                  HAVE SOMETHING
+                  <br />
+                  <span className="outline-text">IN MIND?</span>
+                </h2>
                 <p>
                   Have an idea for your business?
                   <br />
                   Let’s see where it could go.
                 </p>
-                <a
-                  className="contact-link"
-                  href={contact}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Let’s talk{" "}
-                  <span>
-                    <ArrowUpRight size={34} />
-                  </span>
-                </a>
               </div>
-            </Reveal>
+              <a
+                className="contact-action"
+                href={contact}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span>LET’S TALK</span>
+                <ArrowUpRight size={48} strokeWidth={1.3} />
+              </a>
+            </div>
           </section>
         </main>
       )}
       <footer>
-        <div className="footer-top">
-          <a className="wordmark" href="/">
-            player2<span className="logo-spark">✳</span>
+        <div className="footer-main">
+          <a className="brand" href="/">
+            <span className="brand-symbol">
+              P2
+              <span />
+            </span>
+            <span>PLAYER2.SG</span>
           </a>
           <p>
             A passion project.
             <br />
             An ongoing experiment.
           </p>
-          <a href="/fuwa/">
-            Visit Fuwa <ArrowUpRight size={15} />
-          </a>
-          <a href={tikTok} target="_blank" rel="noreferrer">
-            TikTok <ArrowUpRight size={15} />
-          </a>
-          <button onClick={copyLink} className="bare-link">
-            {copied ? "Link copied" : "Pass it on"}{" "}
-            {copied ? <Check size={15} /> : <Copy size={15} />}
-          </button>
+          <div>
+            <a href="/fuwa/">
+              Fuwa <ArrowUpRight size={14} />
+            </a>
+            <a href={tiktok} target="_blank" rel="noreferrer">
+              TikTok <ArrowUpRight size={14} />
+            </a>
+            <button onClick={copy}>
+              {copied ? "Copied" : "Share"}
+              {copied ? <Check size={14} /> : <Copy size={14} />}
+            </button>
+          </div>
         </div>
         <div className="footer-bottom">
-          <span>© {new Date().getFullYear()} Player2.sg</span>
-          <span>MADE IN SINGAPORE. STILL IN PROGRESS.</span>
+          <span>© {new Date().getFullYear()} PLAYER2.SG</span>
+          <span>INDEPENDENT / SINGAPORE</span>
           <a href="/privacy/">Privacy</a>
-          <a href="#" aria-label="Back to top">
-            Back to top ↑
-          </a>
+          <a href="#">Back to top ↑</a>
         </div>
       </footer>
       <dialog
         ref={dialog}
         className="project-dialog"
+        aria-labelledby="project-title"
         onCancel={() => setSelected(null)}
         onClick={(e) => {
           if (e.target === e.currentTarget) setSelected(null);
         }}
-        aria-labelledby="project-title"
       >
         <button
           autoFocus
@@ -669,131 +617,24 @@ export function App() {
         </button>
         {selected && (
           <div className="dialog-content">
-            <p className="eyebrow">
-              {selected.category.toUpperCase()} /{" "}
-              {selected.status.toUpperCase()}
-            </p>
+            <span className="eyebrow">{selected.tag}</span>
             <h2 id="project-title">{selected.title}</h2>
-            {selected.id === "motion" ? (
-              <video
-                controls
-                playsInline
-                preload="metadata"
-                poster={selected.image}
-                src="/assets/reel-preview.mp4"
-              />
-            ) : (
-              <img src={selected.image} alt={selected.type} />
-            )}
-            <h3>{selected.intro}</h3>
-            <p>{selected.body}</p>
-            <p>{selected.learned}</p>
-            {selected.url && (
-              <a
-                className="dark-button"
-                href={selected.url}
-                target={selected.url.startsWith("http") ? "_blank" : undefined}
-                rel="noreferrer"
-              >
-                {selected.action} <ArrowUpRight size={18} />
-              </a>
-            )}
+            <img src={selected.image} alt={selected.subtitle} />
+            <h3>{selected.subtitle}</h3>
+            <p>{selected.description}</p>
+            <p>{selected.lesson}</p>
+            <a
+              className="button primary"
+              href={selected.url}
+              target={selected.url.startsWith("http") ? "_blank" : undefined}
+              rel="noreferrer"
+            >
+              {selected.action}
+              <ArrowUpRight size={17} />
+            </a>
           </div>
         )}
       </dialog>
     </>
-  );
-}
-
-const palettes = [
-  {
-    name: "After hours",
-    colors: ["#f24c32", "#c5f36b", "#eadcf5", "#f7f7f2", "#242422"],
-  },
-  {
-    name: "Electric garden",
-    colors: ["#166343", "#cefa78", "#f6b8c7", "#f8ef51", "#fbfaf5"],
-  },
-  {
-    name: "Daydream",
-    colors: ["#8259db", "#ffc4a7", "#e5ff9a", "#f8f7f4", "#33323a"],
-  },
-];
-function ColourPlayground() {
-  const [palette, setPalette] = useState(0);
-  const [seed, setSeed] = useState(4);
-  const [hover, setHover] = useState(-1);
-  return (
-    <div className="colour-tool">
-      <div className="colour-toolbar">
-        <span>
-          <Sparkles size={15} /> HAPPY ACCIDENT NO.{" "}
-          {String(seed).padStart(3, "0")}
-        </span>
-        <div>
-          <div
-            className="palette-options"
-            role="group"
-            aria-label="Colour palette"
-          >
-            {palettes.map((p, i) => (
-              <button
-                key={p.name}
-                title={p.name}
-                aria-label={p.name}
-                aria-pressed={palette === i}
-                style={{ background: p.colors[0] }}
-                onClick={() => setPalette(i)}
-              >
-                {palette === i && <Check size={14} />}
-              </button>
-            ))}
-          </div>
-          <button
-            className="icon-button"
-            title="Shuffle composition"
-            aria-label="Shuffle composition"
-            onClick={() => setSeed((s) => s + 1)}
-          >
-            <Shuffle size={19} />
-          </button>
-        </div>
-      </div>
-      <div className="colour-grid" onPointerLeave={() => setHover(-1)}>
-        {Array.from({ length: 48 }, (_, i) => {
-          const n = (i * 17 + seed * 23 + Math.floor(i / 8) * seed) % 5;
-          return (
-            <button
-              key={i}
-              tabIndex={i === 0 ? 0 : -1}
-              aria-label={`Change tile ${i + 1}`}
-              onPointerEnter={() => setHover(i)}
-              onFocus={() => setHover(i)}
-              onClick={() => setSeed((s) => s + 1)}
-              style={{
-                backgroundColor:
-                  palettes[palette].colors[(n + (hover === i ? 1 : 0)) % 5],
-                color: palettes[palette].colors[(n + 2) % 5],
-              }}
-            >
-              <span
-                className={`tile-shape shape-${(i + seed) % 4}`}
-                style={{
-                  transform: `rotate(${((seed + i) % 4) * 90 + (hover === i ? 90 : 0)}deg)`,
-                }}
-              >
-                {(i + seed) % 7 === 0 ? "✳" : (i + seed) % 9 === 0 ? "2" : ""}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <div className="colour-bottom">
-        <span>NO RIGHT ANSWER. THAT’S THE POINT.</span>
-        <span>
-          {palettes[palette].name} <ArrowRight size={14} />
-        </span>
-      </div>
-    </div>
   );
 }
