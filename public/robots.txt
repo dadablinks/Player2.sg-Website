@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /fuwa/health
+Disallow: /fuwa/godot-multiplayer
+Sitemap: https://player2.sg/sitemap.xml
