@@ -75,7 +75,25 @@ try {
     await page.keyboard.press("Escape");
     assert.equal(await page.locator("dialog").evaluate((d) => d.open), false);
     await page.locator(".filters button").filter({ hasText: "All" }).click();
-    assert.equal(await page.locator(".project").count(), 2);
+    assert.equal(await page.locator(".project").count(), 3);
+    await page
+      .locator(".filters button")
+      .filter({ hasText: "Automate" })
+      .click();
+    assert.equal(await page.locator(".project").count(), 1);
+    await page
+      .getByRole("button", {
+        name: "Explore TIKTOK CONTENT PIPELINE",
+        exact: true,
+      })
+      .click();
+    assert.equal(await page.locator("dialog .pipeline-stage").count(), 4);
+    assert.equal(
+      await page.locator("dialog a").getAttribute("href"),
+      "https://www.tiktok.com/@player2.sg",
+    );
+    await page.keyboard.press("Escape");
+    await page.locator(".filters button").filter({ hasText: "All" }).click();
     if (width <= 700) {
       await page.getByRole("button", { name: "Open menu" }).click();
       await page

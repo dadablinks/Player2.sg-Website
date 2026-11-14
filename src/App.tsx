@@ -15,6 +15,10 @@ import {
   Check,
   Copy,
   Gamepad2,
+  Lightbulb,
+  Video,
+  ClipboardCheck,
+  CalendarClock,
   Menu,
   X,
 } from "lucide-react";
@@ -51,8 +55,52 @@ const projects = [
     lesson:
       "The test is whether something works beyond its first impression. Content, clarity and everyday usefulness matter.",
   },
+  {
+    id: "pipeline",
+    category: "Automate",
+    title: "TIKTOK CONTENT PIPELINE",
+    subtitle: "From an idea to a scheduled post",
+    image: "",
+    tag: "AI VIDEO / CONTENT AUTOMATION",
+    url: tiktok,
+    action: "Watch on TikTok",
+    description:
+      "An AI-assisted content workflow for Player2.sg: develop a concept, generate video, finish the edit in Remotion, review the result and schedule the post through Metricool. A real experiment in connecting creative tools into a repeatable production process.",
+    lesson:
+      "Automation carries the repetitive work. Creative direction, review and refinement still matter. The project explores how to make the workflow more consistent without treating the first generated result as the finished piece.",
+  },
 ];
 type Project = (typeof projects)[number];
+function PipelineVisual() {
+  const stages = [
+    { name: "CONCEPT", detail: "Idea & script", Icon: Lightbulb },
+    { name: "GENERATE", detail: "AI video", Icon: Video },
+    { name: "REVIEW", detail: "Edit & refine", Icon: ClipboardCheck },
+    { name: "SCHEDULE", detail: "Metricool → TikTok", Icon: CalendarClock },
+  ];
+  return (
+    <span
+      className="pipeline-visual"
+      role="img"
+      aria-label="Workflow overview: concept and script, AI video generation, editing and review, then Metricool scheduling to TikTok"
+    >
+      <span className="pipeline-topline">Player2.sg / WORKFLOW OVERVIEW</span>
+      <span className="pipeline-stages">
+        {stages.map(({ name, detail, Icon }, i) => (
+          <span className="pipeline-stage" key={name}>
+            <span className="pipeline-step">0{i + 1}</span>
+            <Icon size={28} strokeWidth={1.4} />
+            <span className="pipeline-stage-name">{name}</span>
+            <span className="pipeline-detail">{detail}</span>
+          </span>
+        ))}
+      </span>
+      <span className="pipeline-caption">
+        CREATIVE DIRECTION. CONNECTED TOOLS. REPEATABLE OUTPUT.
+      </span>
+    </span>
+  );
+}
 function Wordmark() {
   return (
     <>
@@ -461,14 +509,19 @@ export function App() {
                 role="group"
                 aria-label="Filter projects"
               >
-                {["All", "Play", "Build"].map((f) => (
+                {["All", "Play", "Build", "Automate"].map((f) => (
                   <button
                     key={f}
                     aria-pressed={filter === f}
                     onClick={() => setFilter(f)}
                   >
                     {f}
-                    <span>{f === "All" ? "02" : "01"}</span>
+                    <span>
+                      {String(
+                        projects.filter((p) => f === "All" || p.category === f)
+                          .length,
+                      ).padStart(2, "0")}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -483,7 +536,11 @@ export function App() {
                       aria-label={`Explore ${p.title}`}
                       onClick={() => setSelected(p)}
                     >
-                      <img src={p.image} alt={p.subtitle} loading="lazy" />
+                      {p.id === "pipeline" ? (
+                        <PipelineVisual />
+                      ) : (
+                        <img src={p.image} alt={p.subtitle} loading="lazy" />
+                      )}
                       <span className="image-corner">
                         <ArrowUpRight size={23} />
                       </span>
@@ -520,6 +577,8 @@ export function App() {
                             />
                             {status}
                           </>
+                        ) : p.id === "pipeline" ? (
+                          "AI-ASSISTED WORKFLOW"
                         ) : (
                           "LIVE WEBSITE"
                         )}
@@ -752,7 +811,11 @@ export function App() {
           <div className="dialog-content">
             <span className="eyebrow">{selected.tag}</span>
             <h2 id="project-title">{selected.title}</h2>
-            <img src={selected.image} alt={selected.subtitle} />
+            {selected.id === "pipeline" ? (
+              <PipelineVisual />
+            ) : (
+              <img src={selected.image} alt={selected.subtitle} />
+            )}
             <h3>{selected.subtitle}</h3>
             <p>{selected.description}</p>
             <p>{selected.lesson}</p>

@@ -41,6 +41,11 @@ native project dialogs and reduced-motion support are included, with
 direct links to the verified TikTok profile @player2.sg. No third-party social
 embeds load on the homepage. Contact uses the existing Player2 WhatsApp number.
 
+Project 003 is Player2's TikTok content pipeline, shown as a workflow overview:
+concept/script, AI video generation, editing/review, and Metricool scheduling.
+This is a case study, not a live automation control panel. It links to the
+verified TikTok profile and does not reuse Nick's videos or thumbnails.
+
 `node tests/showcase.browser.mjs` checks desktop, phone and narrow-phone layouts,
 project filtering/dialogs, absence of video content, and mobile navigation.
 It uses the installed Microsoft Edge browser and expects port 5182; override

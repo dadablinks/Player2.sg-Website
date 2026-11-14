@@ -1646,6 +1646,156 @@ footer {
     font-size: 26px;
   }
 }
+.project-pipeline {
+  grid-column: 1/-1;
+}
+.project-pipeline .project-image {
+  aspect-ratio: 3.2;
+  background: #030b06;
+  text-align: left;
+}
+.pipeline-visual {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  padding: 34px 5% 48px;
+  background:
+    linear-gradient(90deg, #45ff6a03 1px, transparent 1px),
+    linear-gradient(#45ff6a03 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.pipeline-topline {
+  display: block;
+  font-size: 9px;
+  color: #79a885;
+  margin-bottom: 28px;
+}
+.pipeline-stages {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 30px;
+  position: relative;
+}
+.pipeline-stages::before {
+  content: "";
+  position: absolute;
+  top: 46px;
+  left: 8%;
+  right: 10%;
+  height: 1px;
+  background: #45ff6a35;
+}
+.pipeline-stage {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 9px;
+}
+.pipeline-step {
+  font: 9px monospace;
+  color: #567e60;
+}
+.pipeline-stage > svg {
+  position: relative;
+  width: 52px;
+  height: 45px;
+  padding: 8px;
+  background: #030b06;
+  color: #45ff6a;
+  filter: drop-shadow(0 0 7px #45ff6a25);
+}
+.pipeline-stage-name {
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 23px;
+  color: #e5efe7;
+}
+.pipeline-detail {
+  font-size: 11px;
+  color: #7b9983;
+}
+.pipeline-caption {
+  display: block;
+  font: 8px monospace;
+  color: #52725b;
+  margin-top: 26px;
+}
+.project-pipeline .image-category {
+  bottom: 12px;
+  left: auto;
+  right: 15px;
+  font-size: 7px;
+}
+.dialog-content > .pipeline-visual {
+  min-height: 240px;
+  border: 1px solid #45ff6a25;
+  padding: 20px;
+}
+.dialog-content .pipeline-stages {
+  gap: 14px;
+}
+.dialog-content .pipeline-stage-name {
+  font-size: 20px;
+}
+.dialog-content .pipeline-caption {
+  line-height: 1.8;
+}
+@media (max-width: 700px) {
+  .project-pipeline .project-image {
+    aspect-ratio: auto;
+    height: 390px;
+  }
+  .pipeline-visual {
+    padding: 22px 22px 42px;
+  }
+  .pipeline-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 28px;
+  }
+  .pipeline-stages::before {
+    display: none;
+  }
+  .pipeline-topline {
+    font-size: 8px;
+    margin-bottom: 19px;
+  }
+  .pipeline-stage {
+    gap: 6px;
+  }
+  .pipeline-stage > svg {
+    width: 36px;
+    height: 34px;
+    padding: 4px;
+  }
+  .pipeline-stage-name {
+    font-size: 23px;
+  }
+  .pipeline-detail {
+    font-size: 10px;
+  }
+  .pipeline-caption {
+    margin-top: 21px;
+    font-size: 7px;
+    line-height: 1.6;
+    max-width: 240px;
+  }
+  .project-pipeline .image-category {
+    display: none;
+  }
+  .filters {
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .filters button {
+    font-size: 11px;
+  }
+  .dialog-content > .pipeline-visual {
+    min-height: 340px;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   :root {
     scroll-behavior: auto;
