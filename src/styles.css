@@ -1264,6 +1264,232 @@ footer {
     font-size: 48px;
   }
 }
+.hero h1 {
+  text-shadow:
+    0 0 24px #e7eef328,
+    0 0 65px #dfe7f518;
+}
+.hero h1 > span:first-child {
+  text-shadow:
+    0 0 13px rgba(229, 60, 66, var(--glow-power, 0.45)),
+    0 0 42px #e53c4250,
+    0 0 85px #e53c4225;
+  animation: title-energise 5s ease-in-out infinite;
+}
+.hero-lead,
+.hero-feature-name,
+.section-top h2,
+.intro h2,
+.about h2,
+.feature-content h2,
+.contact h2 {
+  text-shadow: 0 0 20px #dbe9ff24;
+}
+.brand-symbol {
+  filter: drop-shadow(0 0 8px #e53c4250);
+}
+.hero-scan {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: 0.28;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 4px,
+    #00000015 4px 5px
+  );
+}
+.hero-scan::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: #dcecff45;
+  box-shadow: 0 0 16px 2px #dcecff14;
+  animation: scan-pass 10s linear infinite;
+}
+.hero-label .red-rule {
+  box-shadow: 0 0 11px #e53c4299;
+}
+.status-light.live {
+  animation: live-signal 3s ease-in-out infinite;
+}
+.hero-bottom > a svg {
+  animation: scroll-cue 2.8s ease-in-out infinite;
+}
+.activity-rail {
+  overflow: hidden;
+  border-block: 1px solid #2d333b;
+  background: #101418;
+  padding: 17px 0;
+}
+.activity-track {
+  display: flex;
+  width: max-content;
+  animation: activity-drift 38s linear infinite;
+}
+.activity-group {
+  display: flex;
+  align-items: center;
+  gap: 44px;
+  padding-right: 44px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: #87929e;
+}
+.activity-group i {
+  width: 4px;
+  height: 4px;
+  background: var(--red);
+  box-shadow: 0 0 8px #e53c4266;
+}
+.button,
+.header-play,
+.hero-secondary {
+  transition:
+    color 0.25s,
+    background 0.25s,
+    border-color 0.25s,
+    box-shadow 0.25s;
+}
+.button:hover,
+.button:focus-visible {
+  box-shadow:
+    0 0 26px #e53c4233,
+    inset 0 0 15px #e53c4212;
+}
+.button.primary {
+  box-shadow: 0 0 19px #e53c4224;
+}
+.button svg,
+.header-play svg,
+.hero-secondary svg,
+.project-info > .icon-button svg {
+  transition: transform 0.3s;
+}
+.button:hover svg,
+.header-play:hover svg,
+.hero-secondary:hover svg,
+.project-info > .icon-button:hover svg {
+  transform: translate(3px, -3px);
+}
+.project-image {
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    transform 0.4s;
+}
+.project-image:hover,
+.project-image:focus-visible {
+  border-color: #e53c42a0;
+  box-shadow: 0 0 24px #e53c4226;
+  transform: translateY(-4px);
+}
+.project-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    110deg,
+    transparent 30%,
+    #ffffff13 48%,
+    transparent 65%
+  );
+  transform: translateX(-120%);
+  transition: transform 0.75s;
+  pointer-events: none;
+}
+.project-image:hover::after,
+.project-image:focus-visible::after {
+  transform: translateX(120%);
+}
+.process-row {
+  transition:
+    border-color 0.3s,
+    background 0.3s;
+}
+.process-row:hover {
+  border-color: #e53c4270;
+  background: #e53c4205;
+}
+.process-row:hover h3 {
+  text-shadow: 0 0 20px #e9efff33;
+}
+.process-row > svg {
+  transition:
+    transform 0.3s,
+    color 0.3s;
+}
+.process-row:hover > svg {
+  transform: translate(3px, -3px);
+  color: var(--red);
+}
+.contact-action {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 35px #e53c4220;
+}
+.contact-action svg {
+  transition: transform 0.35s;
+}
+.contact-action:hover {
+  box-shadow: 0 0 45px #e53c4245;
+}
+.contact-action:hover svg {
+  transform: translate(4px, -4px);
+}
+.outline-text {
+  text-shadow: 0 0 28px #e53c4225;
+}
+@keyframes title-energise {
+  0%,
+  100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.18);
+  }
+}
+@keyframes scan-pass {
+  to {
+    transform: translateY(850px);
+  }
+}
+@keyframes live-signal {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 #73b49c22;
+  }
+  50% {
+    box-shadow:
+      0 0 0 4px #73b49c0a,
+      0 0 10px #73b49c60;
+  }
+}
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+@keyframes activity-drift {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (hover: none) {
+  .project-image:hover {
+    transform: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   :root {
     scroll-behavior: auto;

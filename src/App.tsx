@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import {
   AnimatePresence,
   motion,
+  useMotionValue,
   useReducedMotion,
   useScroll,
+  useSpring,
   useTransform,
 } from "framer-motion";
 import {
@@ -81,6 +83,8 @@ export function App() {
   const previousFocus = useRef<HTMLElement | null>(null);
   const reduced = useReducedMotion();
   const { scrollYProgress } = useScroll();
+  const pointerX = useMotionValue(0);
+  const sceneX = useSpring(pointerX, { stiffness: 65, damping: 25 });
   const sceneY = useTransform(
     scrollYProgress,
     [0, 0.3],
@@ -223,15 +227,44 @@ export function App() {
         </main>
       ) : (
         <main>
-          <section className="hero">
+          <section
+            className="hero"
+            onPointerMove={(e) => {
+              if (reduced || e.pointerType !== "mouse") return;
+              const bounds = e.currentTarget.getBoundingClientRect();
+              pointerX.set(
+                ((e.clientX - bounds.left) / bounds.width - 0.5) * -20,
+              );
+              e.currentTarget.style.setProperty(
+                "--glow-power",
+                String(
+                  0.3 +
+                    0.4 *
+                      (1 -
+                        Math.abs(
+                          (e.clientX - bounds.left) / bounds.width - 0.3,
+                        )),
+                ),
+              );
+            }}
+            onPointerLeave={(e) => {
+              pointerX.set(0);
+              e.currentTarget.style.removeProperty("--glow-power");
+            }}
+          >
             <motion.img
               className="hero-scene"
               src="/assets/fuwa-hall.jpg"
               alt="Fuwa's temple hall, a multiplayer world built with Godot"
               fetchPriority="high"
-              style={{ y: sceneY }}
+              style={{
+                y: sceneY,
+                x: reduced ? 0 : sceneX,
+                scale: reduced ? 1 : 1.035,
+              }}
             />
             <div className="hero-shade" />
+            <div className="hero-scan" aria-hidden="true" />
             <div className="hero-layout">
               <div className="hero-label">
                 <span className="red-rule" /> INDEPENDENT MIND. OPEN
@@ -286,6 +319,23 @@ export function App() {
               </a>
             </div>
           </section>
+          <div className="activity-rail" aria-hidden="true">
+            <div className="activity-track">
+              {[0, 1].map((n) => (
+                <span className="activity-group" key={n}>
+                  <span>EXPERIMENT</span>
+                  <i /> <span>BUILD</span>
+                  <i />
+                  <span>PLAY</span>
+                  <i />
+                  <span>REPEAT</span>
+                  <i />
+                  <span>PLAYER2.SG</span>
+                  <i />
+                </span>
+              ))}
+            </div>
+          </div>
           <section className="intro section-pad">
             <Reveal className="intro-layout">
               <span className="eyebrow section-index">01 / THE MINDSET</span>
