@@ -26,6 +26,9 @@ async function unavailable(request, env) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (["/assets/reel-preview.mp4", "/assets/reel-poster.jpg", "/assets/playground.webp"].includes(url.pathname)) {
+      return new Response("This asset has been removed.", { status: 410, headers: { "cache-control": "no-store", "content-type": "text/plain; charset=utf-8" } });
+    }
     if (url.pathname === "/fuwa") {
       url.pathname = "/fuwa/";
       return Response.redirect(url.toString(), 308);

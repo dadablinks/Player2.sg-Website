@@ -3,6 +3,12 @@ import assert from "node:assert/strict";
 import worker from "../public/_worker.js";
 
 const assets = { fetch: async () => new Response("offline page") };
+test('retired media cannot be served through cached Pages assets', async () => {
+  for (const path of ['/assets/reel-preview.mp4', '/assets/reel-poster.jpg', '/assets/playground.webp']) {
+    const response = await worker.fetch(new Request('https://player2.sg' + path), { ASSETS: assets });
+    assert.equal(response.status, 410);
+  }
+});
 test("canonical path preserves queries; other paths use Pages assets", async () => {
   const result = await worker.fetch(
     new Request("https://player2.sg/fuwa?room=2"),
